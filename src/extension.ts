@@ -20,6 +20,11 @@ export function activate(context: vscode.ExtensionContext) {
         let fileManager = new FileManager(basePath);
 
         let path = await vscode.window.showInputBox();
+
+        if(!path) {
+            return;
+        }
+
         let newFilePath = await fileManager.create(path);
         if(!FileManager.isDir(newFilePath)) {
             let doc = await vscode.workspace.openTextDocument(newFilePath);
