@@ -53,5 +53,6 @@
     },
     "bugs": {
         "url": "https://github.com/fayras/vscode-simple-new-file/issues"
-    }
+    },
+    "icon": "imgs/icon.png"
 }
