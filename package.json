@@ -44,5 +44,13 @@
     },
     "dependencies": {
         "mkdirp": "^0.5.1"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fayras/vscode-simple-new-file"
+    },
+    "bugs": {
+        "url": "https://github.com/fayras/vscode-simple-new-file/issues"
     }
 }
