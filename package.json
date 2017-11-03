@@ -1,6 +1,6 @@
 {
-    "name": "better-new-file",
-    "displayName": "Better New File",
+    "name": "simple-new-file",
+    "displayName": "Simple New File",
     "description": "Create new files from the command palette.",
     "version": "0.0.1",
     "publisher": "fayras",
@@ -11,14 +11,21 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onCommand:extension.simpleNewFile"
     ],
     "main": "./out/extension",
     "contributes": {
         "commands": [
             {
-                "command": "extension.sayHello",
-                "title": "Hello World"
+                "command": "extension.simpleNewFile",
+                "title": "Simple New File"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "extension.simpleNewFile",
+                "key": "alt+ctrl+n",
+                "mac": "alt+cmd+n"
             }
         ]
     },
@@ -30,9 +37,10 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "typescript": "^2.5.3",
-        "vscode": "^1.1.5",
+        "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
-        "@types/mocha": "^2.2.42"
+        "mkdirp": "^0.5.1",
+        "typescript": "^2.5.3",
+        "vscode": "^1.1.5"
     }
 }

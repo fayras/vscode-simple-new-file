@@ -1,6 +1,6 @@
-# better-new-file README
+# simple-new-file README
 
-This is the README for your extension "better-new-file". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "simple-new-file". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
