@@ -4,7 +4,7 @@ This extension makes creating file really easy.
 
 Pressing `CTRL + ALT + N` brings up a prompt where you can enter a path to a file. The file will be opened if it exists otherwise a new file will be created along with all its parent directories.
 
-Typing in `path/to/a/new.file will result in the following tree structure.
+Typing in `path/to/a/new.file` will result in the following tree structure.
 
 ```
 - path
@@ -20,6 +20,6 @@ Paths can also have relative parts: `path/to/../a/new.file` will get you
     new.file
 ```
 
-Paths are being treated as relative to the current open file. You can also specify an absolute path by beginning with `/`. (`/path/to...` for example)
+Paths are being treated as relative to the current open file. You can also specify an absolute path by beginning with `/`. `/path/to...` for example will create files relative to the root of your workspace.
 
 You can also create directories by putting a `/` at the ending of a path. `path/to/dir/` will create the `dir` as a directory instead of a file.
