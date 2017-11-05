@@ -38,8 +38,8 @@ export default class FileManager {
     });
   }
 
-  getBase(path: string) {
-    if(path.startsWith('/')) {
+  getBase(path: string = undefined) {
+    if(path !== undefined && path.startsWith('/')) {
       return this.root.fsPath;
     }
 

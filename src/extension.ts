@@ -19,9 +19,11 @@ export function activate(context: vscode.ExtensionContext) {
         let basePath = vscode.window.activeTextEditor.document.uri;
         let fileManager = new FileManager(basePath);
 
-        let path = await vscode.window.showInputBox();
+        let path = await vscode.window.showInputBox({
+            prompt: `Current directory: ${fileManager.getBase()}${' '.repeat(100)}`
+        });
 
-        if(!path) {
+        if(!path || path === '') {
             return;
         }
 
