@@ -80,17 +80,13 @@ export default class FileManager {
     return vscode.Uri.file(this.base.fsPath + sufix);
   }
 
-  readDirectory(uri: vscode.Uri): [string, vscode.FileType][] | Thenable<[string, vscode.FileType][]> {
-    return this._readDirectory(uri);
-  }
-
-  async _readDirectory(uri: vscode.Uri): Promise<[string, vscode.FileType][]> {
+  async readDirectory(uri: vscode.Uri): Promise<[string, vscode.FileType][]> {
     const children = await this.readdir(uri.fsPath);
 
     const result: [string, vscode.FileType][] = [];
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
-        const stat = await this._stat(path.join(uri.fsPath, child));
+        const stat = await this.stat(path.join(uri.fsPath, child));
         result.push([child, stat.type]);
     }
 
@@ -103,8 +99,9 @@ export default class FileManager {
     });
   }
 
-  stat(uri: vscode.Uri): Thenable<vscode.FileStat> {
-    return this._stat(uri.fsPath);
+  stat(uri: vscode.Uri | string): Thenable<vscode.FileStat> {
+    const path = uri instanceof vscode.Uri ? uri.fsPath : uri;
+    return this._stat(path);
   }
 
   private async _stat(path: string): Promise<vscode.FileStat> {
@@ -114,6 +111,17 @@ export default class FileManager {
   private getFsStat(path: string): Promise<fs.Stats> {
     return new Promise<fs.Stats>((resolve, reject) => {
         fs.stat(path, (error, stat) => handleResult(resolve, reject, error, stat));
+    });
+  }
+
+  createDirectory(uri: vscode.Uri | string): Thenable<void> {
+    const path = uri instanceof vscode.Uri ? uri.fsPath : uri;
+    return this.mkdir(path);
+  }
+
+  private mkdir(path: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        mkdirp(path, error => handleResult(resolve, reject, error, void 0));
     });
   }
 }
