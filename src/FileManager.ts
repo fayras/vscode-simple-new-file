@@ -1,62 +1,18 @@
 import * as vscode from 'vscode';
-import * as mkdirp from 'mkdirp';
 import * as path from 'path';
-import * as fs from 'fs';
-
-import FileStat from './FileStat';
+import FileSystemProvider from './FileSystemProvider';
 
 export interface Base {
   path: vscode.Uri;
   type: 'file' | 'workspace';
 }
 
-function handleResult<T>(resolve: (result: T) => void, reject: (error: Error) => void, error: Error | null | undefined, result: T): void {
-  if (error) {
-      reject(massageError(error));
-  } else {
-      resolve(result);
-  }
-}
-
-function massageError(error: Error & { code?: string }): Error {
-  if (error.code === 'ENOENT') {
-      return vscode.FileSystemError.FileNotFound();
-  }
-
-  if (error.code === 'EISDIR') {
-      return vscode.FileSystemError.FileIsADirectory();
-  }
-
-  if (error.code === 'EEXIST') {
-      return vscode.FileSystemError.FileExists();
-  }
-
-  if (error.code === 'EPERM' || error.code === 'EACCESS') {
-      return vscode.FileSystemError.NoPermissions();
-  }
-
-  return error;
-}
-
-function normalizeNFC(items: string): string;
-function normalizeNFC(items: string[]): string[];
-function normalizeNFC(items: string | string[]): string | string[] {
-  if (process.platform !== 'darwin') {
-    return items;
-  }
-
-  if (Array.isArray(items)) {
-    return items.map(item => item.normalize('NFC'));
-  }
-
-  return items.normalize('NFC');
-}
-
-export default class FileManager {
+export default class FileManager extends FileSystemProvider {
   private base: vscode.Uri;
   private root: vscode.WorkspaceFolder | undefined;
 
   constructor(base: Base) {
+    super();
     if(base.type === 'file') {
       this.base = vscode.Uri.file(path.dirname(base.path.fsPath));
     } else {
@@ -78,50 +34,5 @@ export default class FileManager {
     }
 
     return vscode.Uri.file(this.base.fsPath + sufix);
-  }
-
-  async readDirectory(uri: vscode.Uri): Promise<[string, vscode.FileType][]> {
-    const children = await this.readdir(uri.fsPath);
-
-    const result: [string, vscode.FileType][] = [];
-    for (let i = 0; i < children.length; i++) {
-        const child = children[i];
-        const stat = await this.stat(path.join(uri.fsPath, child));
-        result.push([child, stat.type]);
-    }
-
-    return Promise.resolve(result);
-  }
-
-  readdir(path: string): Promise<string[]> {
-    return new Promise<string[]>((resolve, reject) => {
-        fs.readdir(path, (error, children) => handleResult(resolve, reject, error, normalizeNFC(children)));
-    });
-  }
-
-  stat(uri: vscode.Uri | string): Thenable<vscode.FileStat> {
-    const path = uri instanceof vscode.Uri ? uri.fsPath : uri;
-    return this._stat(path);
-  }
-
-  private async _stat(path: string): Promise<vscode.FileStat> {
-    return new FileStat(await this.getFsStat(path));
-  }
-
-  private getFsStat(path: string): Promise<fs.Stats> {
-    return new Promise<fs.Stats>((resolve, reject) => {
-        fs.stat(path, (error, stat) => handleResult(resolve, reject, error, stat));
-    });
-  }
-
-  createDirectory(uri: vscode.Uri | string): Thenable<void> {
-    const path = uri instanceof vscode.Uri ? uri.fsPath : uri;
-    return this.mkdir(path);
-  }
-
-  private mkdir(path: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        mkdirp(path, error => handleResult(resolve, reject, error, void 0));
-    });
   }
 }
