@@ -5,6 +5,11 @@ import * as fs from 'fs';
 
 import FileStat from './FileStat';
 
+export interface Base {
+  path: vscode.Uri;
+  type: 'file' | 'workspace';
+}
+
 function handleResult<T>(resolve: (result: T) => void, reject: (error: Error) => void, error: Error | null | undefined, result: T): void {
   if (error) {
       reject(massageError(error));
@@ -33,61 +38,80 @@ function massageError(error: Error & { code?: string }): Error {
   return error;
 }
 
-export default class FileManager {
-  private root: vscode.WorkspaceFolder | undefined;
-
-  constructor(private base: vscode.Uri) {
-    this.root = vscode.workspace.getWorkspaceFolder(base);
+function normalizeNFC(items: string): string;
+function normalizeNFC(items: string[]): string[];
+function normalizeNFC(items: string | string[]): string | string[] {
+  if (process.platform !== 'darwin') {
+    return items;
   }
 
-  create(pPath: string): Promise<string> {
-    let base = this.getBase(pPath);
+  if (Array.isArray(items)) {
+    return items.map(item => item.normalize('NFC'));
+  }
 
-    return new Promise((resolve, reject) => {
-      let filePath = path.join(base, pPath);
-      fs.exists(filePath, (exists: boolean) => {
-        if (exists) {
-          resolve(filePath);
-        } else {
-          let dirPath = FileManager.isDir(filePath) ? filePath : path.dirname(filePath);
-          mkdirp.sync(dirPath);
-          if(!FileManager.isDir(filePath)) {
-            fs.writeFile(filePath, '', (err: NodeJS.ErrnoException) => {
-              if(err) {
-                reject(err.message);
-              } else {
-                resolve(filePath);
-              }
-            });
-          } else {
-            resolve(filePath);
-          }
-        }
-      });
+  return items.normalize('NFC');
+}
+
+export default class FileManager {
+  private base: vscode.Uri;
+  private root: vscode.WorkspaceFolder | undefined;
+
+  constructor(base: Base) {
+    if(base.type === 'file') {
+      this.base = vscode.Uri.file(path.dirname(base.path.fsPath));
+    } else {
+      this.base = base.path;
+    }
+
+    this.root = vscode.workspace.getWorkspaceFolder(this.base);
+  }
+
+  getContent(path: string = '') {
+    return this.readDirectory(this.getUri(path));
+  }
+
+  getUri(path: string = undefined) {
+    const sufix = path ? '/' + path : '';
+
+    if(path !== undefined && path.startsWith('/')) {
+      return vscode.Uri.file(this.root.uri.fsPath + sufix);
+    }
+
+    return vscode.Uri.file(this.base.fsPath + sufix);
+  }
+
+  readDirectory(uri: vscode.Uri): [string, vscode.FileType][] | Thenable<[string, vscode.FileType][]> {
+    return this._readDirectory(uri);
+  }
+
+  async _readDirectory(uri: vscode.Uri): Promise<[string, vscode.FileType][]> {
+    const children = await this.readdir(uri.fsPath);
+
+    const result: [string, vscode.FileType][] = [];
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        const stat = await this._stat(path.join(uri.fsPath, child));
+        result.push([child, stat.type]);
+    }
+
+    return Promise.resolve(result);
+  }
+
+  readdir(path: string): Promise<string[]> {
+    return new Promise<string[]>((resolve, reject) => {
+        fs.readdir(path, (error, children) => handleResult(resolve, reject, error, normalizeNFC(children)));
     });
   }
 
-  getBase(path: string = undefined) {
-    if(path !== undefined && path.startsWith('/')) {
-      return this.root.uri.fsPath;
-    }
-
-    return this.base.fsPath;
+  stat(uri: vscode.Uri): Thenable<vscode.FileStat> {
+    return this._stat(uri.fsPath);
   }
 
-  static isDir(path: string) {
-    return path.endsWith('/');
+  private async _stat(path: string): Promise<vscode.FileStat> {
+    return new FileStat(await this.getFsStat(path));
   }
 
-  static stat(uri: vscode.Uri): Thenable<vscode.FileStat> {
-    return FileManager._stat(uri.fsPath);
-  }
-
-  private static async _stat(path: string): Promise<vscode.FileStat> {
-    return new FileStat(await FileManager.getFsStat(path));
-  }
-
-  private static getFsStat(path: string): Promise<fs.Stats> {
+  private getFsStat(path: string): Promise<fs.Stats> {
     return new Promise<fs.Stats>((resolve, reject) => {
         fs.stat(path, (error, stat) => handleResult(resolve, reject, error, stat));
     });
