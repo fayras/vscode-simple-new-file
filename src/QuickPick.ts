@@ -21,7 +21,15 @@ export default class QuickPick {
 
     this.quickPick.onDidHide(() => this.quickPick.dispose());
     this.quickPick.onDidAccept(() => {
-      this.accept();
+      const selected = this.quickPick.selectedItems[0]
+
+      // A hack for ignoring duplicate firing of the event when items
+      // are changed. Need to investigate whether it's a bug in the code.
+      if (!selected && this.quickPick.activeItems.length > 0) {
+        return
+      }
+
+      this.accept(selected);
     });
 
     this.quickPick.onDidChangeValue((value) => {
@@ -45,12 +53,9 @@ export default class QuickPick {
     this.oldPath = newPath;
   }
 
-  async accept() {
-    const selected = this.quickPick.selectedItems[0]
-
+  async accept(selected) {
     if (selected === undefined) {
       const path = await this.createNew();
-      console.log('open: ', path);
       this.fm.openFile(path);
     } else {
       if (selected.directory) {
@@ -77,6 +82,7 @@ export default class QuickPick {
   }
 
   async setItems(path: string) {
+    this.quickPick.enabled = false;
     const content = await this.fm.getContent(path);
     content.push(['..', vscode.FileType.Directory]);
     content.sort((a, b) => {
@@ -97,5 +103,7 @@ export default class QuickPick {
         directory: isDir
       }
     });
+
+    this.quickPick.enabled = true;
   }
 }
