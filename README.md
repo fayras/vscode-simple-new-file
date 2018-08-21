@@ -12,7 +12,7 @@ The recommended way of installing is
 
 1. Choose **Extensions** from the menu (<kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>X</kbd>)
 2. Search for "simple new file"
-3. Clickk **Install**
+3. Click **Install**
 4. Click **Reload** to reload the window
 
 And that's it, you're done!
