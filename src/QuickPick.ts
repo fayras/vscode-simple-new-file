@@ -38,10 +38,15 @@ export default class QuickPick {
   }
 
   changePath(input: string) {
-    const newPath = path.normalize(path.dirname(this.fm.getUri(input).fsPath + 'gibberish'));
-    const relative = path.relative(this.fm.getUri().fsPath, newPath);
+    // The "gibberish" part is for getting around the fact, that `.dirname()`
+    // does omit the directory seperator at the end. We don't want that.
+    const newPath = path.normalize(path.dirname(this.fm.getUri(input).fsPath + '__gibberish__'));
 
-    console.log(this.oldPath, newPath, relative);
+    // The relative path is non needed here but might come in handy
+    // in the future. Just leaving it here for the future.
+    // const relative = path.relative(this.fm.getUri().fsPath, newPath);
+
+    // console.log(this.oldPath, newPath, relative);
 
     if(newPath !== this.oldPath) {
       if(input) {
