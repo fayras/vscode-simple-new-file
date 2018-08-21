@@ -17,7 +17,6 @@ export default class QuickPick {
 
     this.quickPick = vscode.window.createQuickPick<FileQuickPickItem>();
     this.quickPick.matchOnDetail = true;
-    this.quickPick.matchOnDescription = true;
 
     this.quickPick.onDidHide(() => this.quickPick.dispose());
     this.quickPick.onDidAccept(() => {
@@ -47,7 +46,7 @@ export default class QuickPick {
 
     if(newPath !== this.oldPath) {
       if(input) {
-        this.quickPick.value = path.normalize(input).replace(/^(.\/)/, '');;
+        this.quickPick.value = path.normalize(input).replace(/^(.\/)/, '');
       }
       this.setItems(relative);
     }
@@ -96,18 +95,18 @@ export default class QuickPick {
       if(a[0] < b[0]) return -1;
       if(a[0] > b[0]) return 1;
       return 0;
-    })
+    });
 
     const prefix = directory ? directory + '/' : '';
     this.quickPick.items = content.map(item => {
       const isDir = item[1] === vscode.FileType.Directory;
-      const icon = isDir ? '$(file-directory)' : '$(file)';
+      const icon = isDir ? '$(file-directory)' : '$(file-code)';
 
       return {
         label: `${icon} ${item[0]}`,
         detail: `${prefix}${item[0]}`,
         directory: isDir
-      }
+      };
     });
 
     this.quickPick.enabled = true;
