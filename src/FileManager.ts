@@ -1,52 +1,46 @@
-import { Uri, workspace } from 'vscode';
-import * as mkdirp from 'mkdirp';
+import * as vscode from 'vscode';
 import * as path from 'path';
-import * as fs from 'fs';
+import FileSystemProvider from './FileSystemProvider';
 
-export default class FileManager {
-  private base: Uri;
-  private root: Uri = workspace.workspaceFolders[0].uri;
+export interface Base {
+  path: vscode.Uri;
+  type: 'file' | 'workspace';
+}
 
-  constructor(base: Uri) {
-    this.base = Uri.file(path.dirname(base.fsPath));
-  }
+export default class FileManager extends FileSystemProvider {
+  private base: vscode.Uri;
+  private root: vscode.WorkspaceFolder | undefined;
 
-  create(pPath: string): Promise<string> {
-    let base = this.getBase(pPath);
-
-    return new Promise((resolve, reject) => {
-      let filePath = path.join(base, pPath);
-      fs.exists(filePath, (exists: boolean) => {
-        if (exists) {
-          resolve(filePath);
-        } else {
-          let dirPath = FileManager.isDir(filePath) ? filePath : path.dirname(filePath);
-          mkdirp.sync(dirPath);
-          if(!FileManager.isDir(filePath)) {
-            fs.writeFile(filePath, '', (err: NodeJS.ErrnoException) => {
-              if(err) {
-                reject(err.message);
-              } else {
-                resolve(filePath);
-              }
-            });
-          } else {
-            resolve(filePath);
-          }
-        }
-      });
-    });
-  }
-
-  getBase(path: string = undefined) {
-    if(path !== undefined && path.startsWith('/')) {
-      return this.root.fsPath;
+  constructor(base: Base) {
+    super();
+    if(base.type === 'file') {
+      this.base = vscode.Uri.file(path.dirname(base.path.fsPath));
+    } else {
+      this.base = base.path;
     }
 
-    return this.base.fsPath;
+    this.root = vscode.workspace.getWorkspaceFolder(this.base);
   }
 
-  static isDir(path: string) {
-    return path.endsWith('/');
+  getContent(path: string = '') {
+    return this.readDirectory(this.getUri(path));
+  }
+
+  getUri(path: string = undefined) {
+    const sufix = path !== undefined ? '/' + path : '';
+
+    if(path !== undefined && path.startsWith('/')) {
+      return vscode.Uri.file(this.root.uri.fsPath + sufix);
+    }
+
+    return vscode.Uri.file(this.base.fsPath + sufix);
+  }
+
+  openFile(path: string) {
+    const uri = this.getUri(path);
+
+    vscode.window.showTextDocument(uri).then(() => { }, (error) => {
+      vscode.window.showWarningMessage(error.message);
+    });
   }
 }

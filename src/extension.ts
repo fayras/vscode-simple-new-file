@@ -3,7 +3,39 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-import FileManager from './FileManager';
+import { Base } from './FileManager';
+import QuickPick from './QuickPick';
+
+async function getBasePath(): Promise<Base | undefined> {
+    const workspaceExists = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0;
+    if (!vscode.window.activeTextEditor && !workspaceExists) {
+        vscode.window.showInformationMessage('You do not have any workspaces open.');
+        return undefined;
+    }
+
+    if (vscode.window.activeTextEditor) {
+        return {
+            path: vscode.window.activeTextEditor.document.uri,
+            type: 'file'
+        };
+    } else if (vscode.workspace.workspaceFolders.length === 1) {
+        return {
+            path: vscode.workspace.workspaceFolders[0].uri,
+            type: 'workspace'
+        };
+    } else {
+        const ws = await vscode.window.showWorkspaceFolderPick();
+
+        if(!ws) {
+            return undefined;
+        }
+
+        return {
+            path: ws.uri,
+            type: 'workspace'
+        };
+    }
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -12,26 +44,14 @@ export function activate(context: vscode.ExtensionContext) {
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
     let disposable = vscode.commands.registerCommand('extension.simpleNewFile', async () => {
-        if (!vscode.window.activeTextEditor) {
-            return;  // no file open
-        }
+        const base = await getBasePath();
 
-        let basePath = vscode.window.activeTextEditor.document.uri;
-        let fileManager = new FileManager(basePath);
-
-        let path = await vscode.window.showInputBox({
-            prompt: `Current directory: ${fileManager.getBase()}${' '.repeat(100)}`
-        });
-
-        if(!path || path === '') {
+        if (!base) {
             return;
         }
 
-        let newFilePath = await fileManager.create(path);
-        if(!FileManager.isDir(newFilePath)) {
-            let doc = await vscode.workspace.openTextDocument(newFilePath);
-            vscode.window.showTextDocument(doc);
-        }
+        const qp = new QuickPick(base);
+        qp.show();
     });
 
     context.subscriptions.push(disposable);
