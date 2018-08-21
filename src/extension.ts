@@ -25,6 +25,11 @@ async function getBasePath(): Promise<Base | undefined> {
         };
     } else {
         const ws = await vscode.window.showWorkspaceFolderPick();
+
+        if(!ws) {
+            return undefined;
+        }
+
         return {
             path: ws.uri,
             type: 'workspace'
