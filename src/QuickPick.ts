@@ -27,18 +27,13 @@ export default class QuickPick {
     this.quickPick.onDidChangeValue((value) => {
       this.changePath(value);
     });
-
-    this.quickPick.onDidChangeActive((items) => {
-      console.log('change active', items);
-    });
   }
 
   changePath(input: string) {
-    console.log("changepath", input)
     const newPath = path.normalize(path.dirname(this.fm.getUri(input).fsPath + 'gibberish'));
-    // const relative = path.relative(this.fm.getUri().fsPath, newPath);
+    const relative = path.relative(this.fm.getUri().fsPath, newPath);
 
-    console.log(this.oldPath, newPath);
+    console.log(this.oldPath, newPath, relative);
 
     if(newPath !== this.oldPath) {
       if(input) {
@@ -50,26 +45,30 @@ export default class QuickPick {
     this.oldPath = newPath;
   }
 
-  accept() {
+  async accept() {
     const selected = this.quickPick.selectedItems[0]
 
     if (selected === undefined) {
-      this.createNew();
+      const path = await this.createNew();
+      console.log('open: ', path);
+      this.fm.openFile(path);
     } else {
       if (selected.directory) {
         this.changePath(selected.detail + '/');
       } else {
-        const uri = this.fm.getUri(selected.detail);
-
-        vscode.window.showTextDocument(uri).then(() => { }, (error) => {
-          vscode.window.showWarningMessage(error.message);
-        });
+        this.fm.openFile(selected.detail);
       }
     }
   }
 
-  createNew() {
-    console.log('create new', this.quickPick.value);
+  async createNew(): Promise<string> {
+    const path = this.quickPick.value;
+    try {
+      await this.fm.writeFile(this.fm.getUri(path), new Uint8Array(0), { create: true, overwrite: false });
+    } catch(e) {
+      console.log(e);
+    }
+    return path;
   }
 
   async show() {

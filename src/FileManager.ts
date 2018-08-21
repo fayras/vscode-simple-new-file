@@ -35,4 +35,12 @@ export default class FileManager extends FileSystemProvider {
 
     return vscode.Uri.file(this.base.fsPath + sufix);
   }
+
+  openFile(path: string) {
+    const uri = this.getUri(path);
+
+    vscode.window.showTextDocument(uri).then(() => { }, (error) => {
+      vscode.window.showWarningMessage(error.message);
+    });
+  }
 }
