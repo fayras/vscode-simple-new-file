@@ -103,7 +103,7 @@ export default class QuickPick {
       const icon = isDir ? '$(file-directory)' : '$(file-code)';
 
       return {
-        label: `${icon} ${item[0]}`,
+        label: `${icon}  ${item[0]}`,
         detail: `${prefix}${item[0]}`,
         directory: isDir
       };
