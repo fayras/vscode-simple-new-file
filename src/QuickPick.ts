@@ -47,7 +47,7 @@ export default class QuickPick {
 
     if(newPath !== this.oldPath) {
       if(input) {
-        this.quickPick.value = path.normalize(input);
+        this.quickPick.value = path.normalize(input).replace(/^(.\/)/, '');;
       }
       this.setItems(relative);
     }
