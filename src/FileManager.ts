@@ -27,7 +27,7 @@ export default class FileManager extends FileSystemProvider {
   }
 
   getUri(path: string = undefined) {
-    const sufix = path ? '/' + path : '';
+    const sufix = path !== undefined ? '/' + path : '';
 
     if(path !== undefined && path.startsWith('/')) {
       return vscode.Uri.file(this.root.uri.fsPath + sufix);
