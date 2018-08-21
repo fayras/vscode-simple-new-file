@@ -42,8 +42,6 @@ export default class QuickPick {
     const newPath = path.normalize(path.dirname(this.fm.getUri(input).fsPath + '__gibberish__'));
     const relative = path.relative(this.fm.getUri().fsPath, newPath);
 
-    // console.log(this.oldPath, newPath, relative);
-
     if(newPath !== this.oldPath) {
       if(input) {
         this.quickPick.value = path.normalize(input).replace(/^(.\/)/, '');
@@ -57,7 +55,9 @@ export default class QuickPick {
   async accept(selected) {
     if (selected === undefined) {
       const path = await this.createNew();
-      this.fm.openFile(path);
+      if(path) {
+        this.fm.openFile(path);
+      }
     } else {
       if (selected.directory) {
         this.changePath(selected.detail + '/');
@@ -67,14 +67,20 @@ export default class QuickPick {
     }
   }
 
-  async createNew(): Promise<string> {
+  async createNew(): Promise<string | undefined> {
     const path = this.quickPick.value;
+    const uri = this.fm.getUri(path);
     try {
-      await this.fm.writeFile(this.fm.getUri(path), new Uint8Array(0), { create: true, overwrite: false });
+      if(path.endsWith('/')) {
+        await this.fm.createDirectory(uri);
+        return undefined;
+      } else {
+        await this.fm.writeFile(uri, new Uint8Array(0), { create: true, overwrite: false });
+        return path;
+      }
     } catch(e) {
-      console.log(e);
+      console.error(e);
     }
-    return path;
   }
 
   async show() {
@@ -85,17 +91,24 @@ export default class QuickPick {
   async setItems(directory: string) {
     this.quickPick.enabled = false;
 
-    const content = await this.fm.getContent(directory);
+    let content = []
+    try {
+      content = await this.fm.getContent(directory);
+      content.push(['..', vscode.FileType.Directory]);
+      content.sort((a, b) => {
+        if(a[1] > b[1]) return -1;
+        if(a[1] < b[1]) return 1;
 
-    content.push(['..', vscode.FileType.Directory]);
-    content.sort((a, b) => {
-      if(a[1] > b[1]) return -1;
-      if(a[1] < b[1]) return 1;
-
-      if(a[0] < b[0]) return -1;
-      if(a[0] > b[0]) return 1;
-      return 0;
-    });
+        if(a[0] < b[0]) return -1;
+        if(a[0] > b[0]) return 1;
+        return 0;
+      });
+    } catch(e) {
+      // Isn't there some better method for checking of which type the error is?
+      if(e.name !== 'EntryNotFound (FileSystemError)') {
+        console.error(e);
+      }
+    }
 
     const prefix = directory ? directory + '/' : '';
     this.quickPick.items = content.map(item => {
