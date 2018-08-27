@@ -44,7 +44,8 @@ export default class QuickPick {
 
     if(newPath !== this.oldPath) {
       if(input) {
-        this.quickPick.value = path.normalize(input).replace(/^(.\/)/, '');
+        const regex = new RegExp(`^(.\\${path.sep})`);
+        this.quickPick.value = path.normalize(input).replace(regex, '');
       }
       this.setItems(relative);
     }
@@ -61,7 +62,7 @@ export default class QuickPick {
       this.quickPick.hide();
     } else {
       if (selected.directory) {
-        this.changePath(selected.detail + '/');
+        this.changePath(selected.detail + path.sep);
       } else {
         this.fm.openFile(selected.detail);
       }
@@ -69,15 +70,15 @@ export default class QuickPick {
   }
 
   async createNew(): Promise<string | undefined> {
-    const path = this.quickPick.value;
-    const uri = this.fm.getUri(path);
+    const filePath = this.quickPick.value;
+    const uri = this.fm.getUri(filePath);
     try {
-      if(path.endsWith('/')) {
+      if(filePath.endsWith(path.sep)) {
         await this.fm.createDirectory(uri);
         return undefined;
       } else {
         await this.fm.writeFile(uri, new Uint8Array(0), { create: true, overwrite: false });
-        return path;
+        return filePath;
       }
     } catch(e) {
       console.error(e);
@@ -111,7 +112,7 @@ export default class QuickPick {
       }
     }
 
-    const prefix = directory ? directory + '/' : '';
+    const prefix = directory ? directory + path.sep : '';
     this.quickPick.items = content.map(item => {
       const isDir = item[1] === vscode.FileType.Directory;
       const icon = isDir ? '$(file-directory)' : '$(file-code)';
