@@ -58,6 +58,7 @@ export default class QuickPick {
       if(path) {
         this.fm.openFile(path);
       }
+      this.quickPick.hide();
     } else {
       if (selected.directory) {
         this.changePath(selected.detail + '/');
