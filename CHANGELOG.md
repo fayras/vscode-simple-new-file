@@ -5,6 +5,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.1] - 2019-06-08
+### Fixed
+- Fixed an issue on Windows when starting the path with `/`.
+
 ## [1.1.0] - 2019-06-08
 ### New features
 - The extension now comes with two new settings `defaultPath` and `showDetails`!
