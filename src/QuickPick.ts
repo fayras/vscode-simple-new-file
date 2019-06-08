@@ -18,7 +18,7 @@ export default class QuickPick {
 
   constructor(base: Base) {
     this.fm = new FileManager(base);
-    this.oldPath = this.fm.getUri().fsPath;
+    this.oldPath = null;
     this.config = vscode.workspace.getConfiguration('simple-new-file');
     this.items = [];
 
