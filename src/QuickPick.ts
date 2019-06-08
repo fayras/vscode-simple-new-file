@@ -4,6 +4,7 @@ import FileManager, { Base } from './FileManager';
 
 interface FileQuickPickItem extends vscode.QuickPickItem {
   directory: boolean;
+  name: string;
 }
 
 export default class QuickPick {
@@ -118,9 +119,11 @@ export default class QuickPick {
       const icon = isDir ? '$(file-directory)' : '$(file-code)';
 
       return {
+        name: item[0],
         label: `${icon}  ${item[0]}`,
-        detail: `${prefix}${item[0]}`,
-        directory: isDir
+        // detail: `${prefix}${item[0]}`,
+        directory: isDir,
+        alwaysShow: true
       };
     });
 
