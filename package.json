@@ -27,6 +27,23 @@
                 "key": "alt+ctrl+n",
                 "mac": "alt+cmd+n"
             }
+        ],
+        "configuration":[
+            {
+                "title": "Simple New File configuration",
+                "properties": {
+                    "simple-new-file.defaultPath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Set a default path when opening the prompt."
+                    },
+                    "simple-new-file.showDetails": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Show the full path for each item."
+                    }
+                }
+            }
         ]
     },
     "scripts": {
