@@ -46,15 +46,13 @@ export default class QuickPick {
     // The "gibberish" part is for getting around the fact, that `.dirname()`
     // does omit the directory seperator at the end. We don't want that.
     const newPath = path.normalize(path.dirname(this.fm.getUri(input).fsPath + '__gibberish__'));
-    const relative = path.relative(this.fm.getUri().fsPath, newPath);
-    console.log(newPath, relative);
 
     if(newPath !== this.oldPath) {
       if(input) {
         const regex = new RegExp(`^(.\\${path.sep})`);
         this.quickPick.value = path.normalize(input).replace(regex, '');
       }
-      await this.setItems(relative);
+      await this.setItems(newPath);
     }
 
     this.filterItems(input);
@@ -125,7 +123,10 @@ export default class QuickPick {
     this.changePath(defaultPath);
   }
 
-  async setItems(directory: string) {
+  async setItems(pPath: string) {
+    const directory = path.relative(this.fm.getUri().fsPath, pPath);
+    const relativeToRoot = path.relative(this.fm.getUri('/').fsPath, pPath);
+
     let content = []
     try {
       content = await this.fm.getContent(directory);
@@ -137,7 +138,7 @@ export default class QuickPick {
       }
     }
 
-    const prefix = directory ? directory + path.sep : '';
+    const showDetails = this.config.get<boolean>('showDetails');
     this.items = content.map(item => {
       const isDir = item[1] === vscode.FileType.Directory;
       const icon = isDir ? '$(file-directory)' : '$(file-code)';
@@ -145,9 +146,10 @@ export default class QuickPick {
       return {
         name: item[0],
         label: `${icon}  ${item[0]}`,
-        fullPath: `${prefix}${item[0]}`,
+        fullPath: path.join(directory, item[0]),
         directory: isDir,
-        alwaysShow: true
+        alwaysShow: true,
+        detail: showDetails ? path.join(relativeToRoot, item[0]) : undefined,
       };
     });
 
