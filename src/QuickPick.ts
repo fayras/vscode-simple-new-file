@@ -11,13 +11,15 @@ export default class QuickPick {
   quickPick: vscode.QuickPick<FileQuickPickItem>;
   fm: FileManager;
   oldPath: string;
+  items: FileQuickPickItem[];
 
   constructor(base: Base) {
     this.fm = new FileManager(base);
     this.oldPath = this.fm.getUri().fsPath;
+    this.items = [];
 
     this.quickPick = vscode.window.createQuickPick<FileQuickPickItem>();
-    this.quickPick.matchOnDetail = true;
+    // this.quickPick.matchOnDetail = true;
 
     this.quickPick.onDidHide(() => this.quickPick.dispose());
     this.quickPick.onDidAccept(() => {
@@ -92,7 +94,7 @@ export default class QuickPick {
   }
 
   async setItems(directory: string) {
-    this.quickPick.enabled = false;
+    // this.quickPick.enabled = false;
 
     let content = []
     try {
@@ -114,7 +116,7 @@ export default class QuickPick {
     }
 
     const prefix = directory ? directory + path.sep : '';
-    this.quickPick.items = content.map(item => {
+    this.items = content.map(item => {
       const isDir = item[1] === vscode.FileType.Directory;
       const icon = isDir ? '$(file-directory)' : '$(file-code)';
 
@@ -126,7 +128,5 @@ export default class QuickPick {
         alwaysShow: true
       };
     });
-
-    this.quickPick.enabled = true;
   }
 }
