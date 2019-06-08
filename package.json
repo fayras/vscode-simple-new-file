@@ -2,7 +2,7 @@
     "name": "simple-new-file",
     "displayName": "Simple New File",
     "description": "Create new files from the command palette.",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "publisher": "fayras",
     "engines": {
         "vscode": "^1.29.0"
