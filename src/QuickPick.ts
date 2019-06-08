@@ -13,11 +13,13 @@ export default class QuickPick {
   quickPick: vscode.QuickPick<FileQuickPickItem>;
   fm: FileManager;
   oldPath: string;
+  config: vscode.WorkspaceConfiguration;
   items: FileQuickPickItem[];
 
   constructor(base: Base) {
     this.fm = new FileManager(base);
     this.oldPath = this.fm.getUri().fsPath;
+    this.config = vscode.workspace.getConfiguration('simple-new-file');
     this.items = [];
 
     this.quickPick = vscode.window.createQuickPick<FileQuickPickItem>();
@@ -116,9 +118,11 @@ export default class QuickPick {
   }
 
   async show() {
-    await this.setItems('');
-    this.filterItems('');
+    const defaultPath = this.config.get<string>('defaultPath');
+    await this.setItems(defaultPath);
+    this.filterItems(defaultPath);
     this.quickPick.show();
+    this.quickPick.value = defaultPath;
   }
 
   async setItems(directory: string) {
