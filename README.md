@@ -8,7 +8,7 @@ Creating new files via the sidebar can get quite tedious. This extension aims to
 
 ## Installation
 
-Before installing make sure you are running a version of VSCode > 1.26.0 as this extension uses the QuickPick Extension API shipped with 1.26.0.
+Before installing make sure you are running a version of VSCode >= 1.29.0 as this extension uses the QuickPick Extension API shipped with 1.29.0.
 
 The recommended way of installing is
 
