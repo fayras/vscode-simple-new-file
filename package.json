@@ -28,7 +28,7 @@
                 "mac": "alt+cmd+n"
             }
         ],
-        "configuration":[
+        "configuration": [
             {
                 "title": "Simple New File configuration",
                 "properties": {
@@ -55,10 +55,10 @@
         "postversion": "git push && git push --tags"
     },
     "devDependencies": {
-        "@types/mocha": "^2.2.48",
-        "@types/node": "^7.0.69",
-        "typescript": "^2.9.2",
-        "vscode": "^1.1.21"
+        "@types/mocha": "^5.2.7",
+        "@types/node": "^12.0.7",
+        "typescript": "^3.5.1",
+        "vscode": "^1.1.34"
     },
     "dependencies": {
         "mkdirp": "^0.5.1"
