@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import FileManager, { Base } from './FileManager';
+import Fuzzy from './Fuzzy';
 
 interface FileQuickPickItem extends vscode.QuickPickItem {
   directory: boolean;
@@ -39,7 +40,7 @@ export default class QuickPick {
     });
   }
 
-  changePath(input: string) {
+  async changePath(input: string) {
     // The "gibberish" part is for getting around the fact, that `.dirname()`
     // does omit the directory seperator at the end. We don't want that.
     const newPath = path.normalize(path.dirname(this.fm.getUri(input).fsPath + '__gibberish__'));
@@ -50,10 +51,24 @@ export default class QuickPick {
         const regex = new RegExp(`^(.\\${path.sep})`);
         this.quickPick.value = path.normalize(input).replace(regex, '');
       }
-      this.setItems(relative);
+      await this.setItems(relative);
     }
 
+    this.filterItems(input);
+
     this.oldPath = newPath;
+  }
+
+  filterItems(input: string) {
+    const filename = path.basename(input + '__gibberish__').replace('__gibberish__', '');
+    if(!filename) {
+      this.quickPick.items = this.items;
+      return;
+    }
+
+    this.quickPick.items = this.items.filter(item => {
+      return Fuzzy.search(filename, item.name);
+    });
   }
 
   async accept(selected) {
@@ -89,7 +104,8 @@ export default class QuickPick {
   }
 
   async show() {
-    this.setItems('');
+    await this.setItems('');
+    this.filterItems('');
     this.quickPick.show();
   }
 
