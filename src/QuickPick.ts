@@ -47,6 +47,7 @@ export default class QuickPick {
     // does omit the directory seperator at the end. We don't want that.
     const newPath = path.normalize(path.dirname(this.fm.getUri(input).fsPath + '__gibberish__'));
     const relative = path.relative(this.fm.getUri().fsPath, newPath);
+    console.log(newPath, relative);
 
     if(newPath !== this.oldPath) {
       if(input) {
@@ -85,7 +86,7 @@ export default class QuickPick {
     });
   }
 
-  async accept(selected) {
+  async accept(selected: FileQuickPickItem) {
     if (selected === undefined) {
       const path = await this.createNew();
       if(path) {
@@ -119,10 +120,9 @@ export default class QuickPick {
 
   async show() {
     const defaultPath = this.config.get<string>('defaultPath');
-    await this.setItems(defaultPath);
-    this.filterItems(defaultPath);
+
     this.quickPick.show();
-    this.quickPick.value = defaultPath;
+    this.changePath(defaultPath);
   }
 
   async setItems(directory: string) {
