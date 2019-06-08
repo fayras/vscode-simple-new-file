@@ -35,12 +35,12 @@
                     "simple-new-file.defaultPath": {
                         "type": "string",
                         "default": "",
-                        "description": "Set a default path when opening the prompt."
+                        "description": "Every time you activate the extension, this path will be filled automatically for you."
                     },
                     "simple-new-file.showDetails": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Show the full path for each item."
+                        "description": "Setting this option will show or hide the relative path of the file/directory to the root of the active workspace."
                     }
                 }
             }
