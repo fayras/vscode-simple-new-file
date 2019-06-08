@@ -6,6 +6,7 @@ import Fuzzy from './Fuzzy';
 interface FileQuickPickItem extends vscode.QuickPickItem {
   directory: boolean;
   name: string;
+  fullPath: string;
 }
 
 export default class QuickPick {
@@ -91,9 +92,9 @@ export default class QuickPick {
       this.quickPick.hide();
     } else {
       if (selected.directory) {
-        this.changePath(selected.detail + path.sep);
+        this.changePath(selected.fullPath + path.sep);
       } else {
-        this.fm.openFile(selected.detail);
+        this.fm.openFile(selected.fullPath);
       }
     }
   }
@@ -140,7 +141,7 @@ export default class QuickPick {
       return {
         name: item[0],
         label: `${icon}  ${item[0]}`,
-        // detail: `${prefix}${item[0]}`,
+        fullPath: `${prefix}${item[0]}`,
         directory: isDir,
         alwaysShow: true
       };
