@@ -23,7 +23,7 @@ And that's it, you're done!
 
 Pressing <kbd>CTRL</kbd>+<kbd>ALT</kbd>+<kbd>N</kbd> brings up a prompt where you can enter a path to a file. The file will be opened if it already exists otherwise a new file will be created along with all its parent directories.
 
-Typing in `path/to/a/new/file` will result in the following tree structure.
+Typing in `path/to/a/new.file` will result in the following tree structure.
 
 ```
 path
@@ -48,6 +48,15 @@ You can also create directories by putting a `/` at the ending of a path. `path/
 ### Autocompletion
 
 By selecting a directory from the list, the extension does autocomplete the input for you. Beware however, as this does not work by pressing <kbd>TAB</kbd>, the process is more like "selecting an item and pressing <kbd>RETURN</kbd>". This is due to limitations from the VSCode Extension API and may be improved in future versions of this extensions as the Extension API is expanded.
+
+## Configuration
+
+Starting with version `1.1.0` you are able to tweak some settings of the extension to suit your needs.
+
+Key | Default | Description
+--- | --- | ---
+```defaultPath``` | `""` | Every time you activate the extension, this path will be filled automatically for you.
+```showDetails``` | `false` | Setting this option will show or hide the relative path of the file/directory to the root of the active workspace.
 
 ## Known Caveats
 

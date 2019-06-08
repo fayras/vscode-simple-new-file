@@ -5,7 +5,7 @@
     "version": "1.0.1",
     "publisher": "fayras",
     "engines": {
-        "vscode": "^1.26.0"
+        "vscode": "^1.29.0"
     },
     "categories": [
         "Other"
@@ -27,6 +27,23 @@
                 "key": "alt+ctrl+n",
                 "mac": "alt+cmd+n"
             }
+        ],
+        "configuration": [
+            {
+                "title": "Simple New File configuration",
+                "properties": {
+                    "simple-new-file.defaultPath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Every time you activate the extension, this path will be filled automatically for you."
+                    },
+                    "simple-new-file.showDetails": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Setting this option will show or hide the relative path of the file/directory to the root of the active workspace."
+                    }
+                }
+            }
         ]
     },
     "scripts": {
@@ -38,10 +55,10 @@
         "postversion": "git push && git push --tags"
     },
     "devDependencies": {
-        "@types/mocha": "^2.2.48",
-        "@types/node": "^7.0.69",
-        "typescript": "^2.9.2",
-        "vscode": "^1.1.21"
+        "@types/mocha": "^5.2.7",
+        "@types/node": "^12.0.7",
+        "typescript": "^3.5.1",
+        "vscode": "^1.1.34"
     },
     "dependencies": {
         "mkdirp": "^0.5.1"
