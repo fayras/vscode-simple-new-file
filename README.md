@@ -62,3 +62,4 @@ Key | Default | Description
 
 - There is currently no way to get your installed icon theme to show up in the list. Therefore only GitHub's Octicons are supported.
 - The API for the QuickPick does not allow for custom sorting while typing. The items inside the list may be placed in an incorrect order, that is not "folders first, files second".
+- The QuickPick always selects the first item by default. When you want to create a file which is a partial match of another, you can append a whitespace at the end to force creation. [#9](https://github.com/fayras/vscode-simple-new-file/issues/9)
