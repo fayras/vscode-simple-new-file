@@ -101,7 +101,7 @@ export default class QuickPick {
   }
 
   async createNew(): Promise<string | undefined> {
-    const filePath = this.quickPick.value;
+    const filePath = this.quickPick.value.trim();
     const uri = this.fm.getUri(filePath);
     try {
       if(filePath.endsWith(path.sep)) {
