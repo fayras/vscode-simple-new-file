@@ -27,14 +27,20 @@ export default class QuickPick {
     this.quickPick.onDidHide(() => this.quickPick.dispose());
     this.quickPick.onDidAccept(() => {
       const selected = this.quickPick.selectedItems[0];
-
+            
       // A hack for ignoring duplicate firing of the event when items
       // are changed. Need to investigate whether it's a bug in the code.
       if (!selected && this.quickPick.activeItems.length > 0) {
         return
       }
 
-      this.accept(selected);
+      if (this.quickPick.activeItems.length == 1) {
+        this.acceptSelection(selected);
+      }
+      else {
+        const filePath = this.quickPick.value.trim();
+        this.acceptNew(filePath);
+      }
     });
 
     this.quickPick.onDidChangeValue((value) => {
@@ -84,24 +90,23 @@ export default class QuickPick {
     });
   }
 
-  async accept(selected: FileQuickPickItem) {
-    if (selected === undefined) {
-      const path = await this.createNew();
-      if(path) {
-        this.fm.openFile(path);
-      }
-      this.quickPick.hide();
-    } else {
+  async acceptSelection(selected: FileQuickPickItem) {
       if (selected.directory) {
         this.changePath(selected.fullPath + path.sep);
       } else {
         this.fm.openFile(selected.fullPath);
       }
-    }
   }
 
-  async createNew(): Promise<string | undefined> {
-    const filePath = this.quickPick.value.trim();
+  async acceptNew(filePath: string) {
+      const path = await this.createNew(filePath);
+      if(path) {
+        this.fm.openFile(path);
+      }
+      this.quickPick.hide();
+  }
+
+  async createNew(filePath: string): Promise<string | undefined> {
     const uri = this.fm.getUri(filePath);
     try {
       if(filePath.endsWith(path.sep)) {
