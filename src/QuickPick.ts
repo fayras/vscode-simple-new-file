@@ -26,12 +26,13 @@ export default class QuickPick {
 
     this.quickPick.onDidHide(() => this.quickPick.dispose());
     this.quickPick.onDidAccept(() => {
-      const selected = this.quickPick.selectedItems[0];
+     // Initialize selected as undefined - this will trigger new file creation if no item is selected
+      let selected = undefined;
 
-      // A hack for ignoring duplicate firing of the event when items
-      // are changed. Need to investigate whether it's a bug in the code.
-      if (!selected && this.quickPick.activeItems.length > 0) {
-        return
+      // Check if there are any active items in the QuickPick list
+      if (this.quickPick.activeItems.length > 0) {
+        // If items exist, get the first selected item (could be file or directory)
+        selected = this.quickPick.selectedItems[0];
       }
 
       this.accept(selected);
