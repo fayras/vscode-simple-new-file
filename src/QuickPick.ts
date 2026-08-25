@@ -7,6 +7,7 @@ interface FileQuickPickItem extends vscode.QuickPickItem {
   directory: boolean;
   name: string;
   fullPath: string;
+  create?: boolean;
 }
 
 export default class QuickPick {
@@ -67,9 +68,25 @@ export default class QuickPick {
       return;
     }
 
-    this.quickPick.items = this.items.filter(item => {
+    const filtered = this.items.filter(item => {
       return Fuzzy.search(filename, item.name);
     });
+
+    const existing = this.items.some(item => item.name === filename);
+    this.quickPick.items = existing
+      ? filtered
+      : [...filtered, this.createItem(input, filename)];
+  }
+
+  createItem(input: string, filename: string): FileQuickPickItem {
+    return {
+      name: filename,
+      label: `$(new-file)  ${filename}`,
+      fullPath: input,
+      directory: false,
+      alwaysShow: true,
+      create: true,
+    };
   }
 
   sortItems() {
@@ -85,7 +102,7 @@ export default class QuickPick {
   }
 
   async accept(selected: FileQuickPickItem) {
-    if (selected === undefined) {
+    if (selected === undefined || selected.create) {
       const path = await this.createNew();
       if(path) {
         this.fm.openFile(path);
